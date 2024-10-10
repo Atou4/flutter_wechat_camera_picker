@@ -22,7 +22,11 @@ dependencies:
   flutter:
     sdk: flutter
 
-  wechat_picker_library: ^1.0.2
+  wechat_picker_library:
+    git:
+      url: https://github.com/Atou4/flutter_wechat_picker_library.git
+      ref: main  
+  
 
   camera: ^0.10.0
   camera_android: '>=0.10.0 <0.10.9+4'
@@ -49,3 +53,5 @@ screenshots:
     path: screenshots/README_4.jpg
   - description: 'Screenshot 5'
     path: screenshots/README_5.jpg
+
+publish_to: none
