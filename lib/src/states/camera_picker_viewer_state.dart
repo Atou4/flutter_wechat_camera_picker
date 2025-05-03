@@ -231,12 +231,98 @@ class CameraPickerViewerState extends State<CameraPickerViewer> {
       builder = Stack(
         children: <Widget>[
           Center(
-            child: AspectRatio(
-              aspectRatio: videoController.value.aspectRatio,
-              child: VideoPlayer(videoController),
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              color: Colors.black,
+              child: videoController.value.isInitialized
+                  ? FittedBox(
+                      fit: BoxFit.contain,
+                      child: SizedBox(
+                        width: videoController.value.size.width,
+                        height: videoController.value.size.height,
+                        child: VideoPlayer(videoController),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
             ),
           ),
           buildPlayControlButton(context),
+          if (videoController.value.isInitialized)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 60,
+              child: ValueListenableBuilder<VideoPlayerValue>(
+                valueListenable: videoController,
+                builder: (context, value, child) {
+                  final duration = value.duration.inMilliseconds;
+                  final position = value.position.inMilliseconds;
+                  final progress = duration > 0 ? position / duration : 0.0;
+                  
+                  final positionText = _formatDuration(value.position);
+                  final durationText = _formatDuration(value.duration);
+                  
+                  return Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    color: Colors.black54,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SliderTheme(
+                          data: SliderTheme.of(context).copyWith(
+                            trackHeight: 4.0,
+                            thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 6.0,
+                            ),
+                            overlayShape: const RoundSliderOverlayShape(
+                              overlayRadius: 12.0,
+                            ),
+                            trackShape: const RectangularSliderTrackShape(),
+                          ),
+                          child: Slider(
+                            value: progress,
+                            onChanged: (value) {
+                              final newPosition = Duration(
+                                milliseconds: (duration * value).round(),
+                              );
+                              videoController.seekTo(newPosition);
+                            },
+                            activeColor: Colors.white,
+                            inactiveColor: Colors.white38,
+                          ),
+                        ),
+                        
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                positionText,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                durationText,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
         ],
       );
     } else {
@@ -251,6 +337,13 @@ class CameraPickerViewerState extends State<CameraPickerViewer> {
         child: builder,
       ),
     );
+  }
+
+  /// Format duration to MM:SS
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
   }
 
   /// The confirm button for the preview section.
