@@ -236,14 +236,11 @@ class CameraPickerViewerState extends State<CameraPickerViewer> {
               height: MediaQuery.of(context).size.height,
               color: Colors.black,
               child: videoController.value.isInitialized
-                  ? FittedBox(
-                      fit: BoxFit.contain,
-                      child: SizedBox(
-                        width: videoController.value.size.width,
-                        height: videoController.value.size.height,
-                        child: VideoPlayer(videoController),
-                      ),
-                    )
+                  ? SizedBox(
+                    width: videoController.value.size.width,
+                    height: videoController.value.size.height,
+                    child: VideoPlayer(videoController),
+                  )
                   : const SizedBox.shrink(),
             ),
           ),
